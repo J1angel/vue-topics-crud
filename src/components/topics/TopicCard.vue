@@ -26,6 +26,6 @@ const emit = defineEmits(['edit', 'delete'])
       </div>
     </div>
 
-    <CommentList :topic="topic" />
+    <CommentList :topic-guid="topic.guid" />
   </article>
 </template>

@@ -2,13 +2,18 @@
 import { ref, computed } from 'vue'
 import AppModal from '../AppModal.vue'
 import CommentItem from './CommentItem.vue'
+import { useTopicsStore } from '../../stores/topics.js'
 import { toLocalInputValue, fromLocalInputValue } from '../../utils/topics.js'
 
 const COMMENTS_PAGE_SIZE = 3
 
 const props = defineProps({
-  topic: { type: Object, required: true },
+  topicGuid: { type: String, required: true },
 })
+
+const store = useTopicsStore()
+
+const topic = computed(() => store.topics.find((t) => t.guid === props.topicGuid))
 
 const formVisible = ref(false)
 const isNew = ref(true)
@@ -24,15 +29,15 @@ const deleteIndex = ref(-1)
 const visibleCount = ref(COMMENTS_PAGE_SIZE)
 
 const visibleComments = computed(() =>
-  props.topic.comments.slice(0, visibleCount.value)
+  (topic.value?.comments ?? []).slice(0, visibleCount.value)
 )
 
 const hasMoreComments = computed(
-  () => visibleCount.value < props.topic.comments.length
+  () => visibleCount.value < (topic.value?.comments.length ?? 0)
 )
 
 const hiddenCommentCount = computed(
-  () => props.topic.comments.length - visibleCount.value
+  () => (topic.value?.comments.length ?? 0) - visibleCount.value
 )
 
 const nextBatchSize = computed(() =>
@@ -42,7 +47,7 @@ const nextBatchSize = computed(() =>
 function showMoreComments() {
   visibleCount.value = Math.min(
     visibleCount.value + COMMENTS_PAGE_SIZE,
-    props.topic.comments.length
+    topic.value?.comments.length ?? 0
   )
 }
 
@@ -65,7 +70,7 @@ function startCreate() {
 }
 
 function startEdit(index) {
-  const c = props.topic.comments[index]
+  const c = topic.value.comments[index]
   formVisible.value = true
   isNew.value = false
   editIndex.value = index
@@ -87,12 +92,12 @@ function save() {
     date: fromLocalInputValue(timeLocal.value),
   }
   if (isNew.value) {
-    props.topic.comments.push(payload)
-    if (props.topic.comments.length > visibleCount.value) {
-      visibleCount.value = props.topic.comments.length
+    store.addComment(props.topicGuid, payload)
+    if (topic.value.comments.length > visibleCount.value) {
+      visibleCount.value = topic.value.comments.length
     }
   } else {
-    props.topic.comments[editIndex.value] = payload
+    store.updateComment(props.topicGuid, editIndex.value, payload)
   }
   resetForm()
 }
@@ -104,7 +109,7 @@ function confirmDelete(index) {
 
 function deleteComment() {
   if (formVisible.value && editIndex.value === deleteIndex.value) resetForm()
-  props.topic.comments.splice(deleteIndex.value, 1)
+  store.deleteComment(props.topicGuid, deleteIndex.value)
   deleteModalVisible.value = false
   deleteIndex.value = -1
 }
@@ -114,7 +119,7 @@ function deleteComment() {
   <div class="mt-3 border-t border-slate-100 pt-3">
     <div class="mb-2 flex items-center justify-between gap-3">
       <h3 class="text-sm font-medium text-slate-600">
-        Comments ({{ topic.comments.length }})
+        Comments ({{ topic?.comments.length ?? 0 }})
       </h3>
       <button
         v-if="!formVisible"
@@ -165,13 +170,13 @@ function deleteComment() {
       </div>
     </div>
 
-    <p v-if="topic.comments.length === 0" class="text-sm italic text-slate-400">
+    <p v-if="!topic?.comments.length" class="text-sm italic text-slate-400">
       No comments yet.
     </p>
 
     <CommentItem
       v-for="(comment, index) in visibleComments"
-      :key="topic.guid + '-' + index"
+      :key="topicGuid + '-' + index"
       :comment="comment"
       @edit="startEdit(index)"
       @delete="confirmDelete(index)"

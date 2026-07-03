@@ -60,7 +60,9 @@ Open the URL shown in the terminal (usually **http://localhost:4173**).
 
 ```
 src/
-├── App.vue                 # Main app layout and topic state
+├── App.vue                 # Main app layout
+├── stores/
+│   └── topics.js           # Pinia store (topics, comments, pagination)
 ├── components/
 │   ├── AppModal.vue        # Reusable modal
 │   ├── TopicPagination.vue # Topic list pagination
