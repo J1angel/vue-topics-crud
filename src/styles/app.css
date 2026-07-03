@@ -1,0 +1,45 @@
+@import 'tailwindcss';
+
+@layer base {
+  body {
+    @apply m-0 bg-slate-100 text-slate-900 font-sans leading-normal;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply cursor-pointer rounded-md border-0 px-3.5 py-2 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-45;
+  }
+
+  .btn-primary {
+    @apply cursor-pointer rounded-md border-0 px-3.5 py-2 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-45 bg-blue-500 text-white hover:bg-blue-600;
+  }
+
+  .btn-secondary {
+    @apply cursor-pointer rounded-md border-0 px-3.5 py-2 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-45 bg-gray-200 text-gray-800 hover:bg-gray-300;
+  }
+
+  .btn-danger {
+    @apply cursor-pointer rounded-md border-0 px-3.5 py-2 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-45 bg-red-500 text-white hover:bg-red-600;
+  }
+
+  .btn-small {
+    @apply px-2.5 py-1 text-xs;
+  }
+
+  .field-label {
+    @apply mb-1 block text-sm font-medium text-gray-700;
+  }
+
+  .field-input {
+    @apply mb-2.5 w-full rounded-md border border-slate-300 px-2.5 py-2 text-sm;
+  }
+
+  .field-input-error {
+    @apply border-red-400;
+  }
+
+  .field-error {
+    @apply -mt-1 mb-2.5 text-sm text-red-600;
+  }
+}
